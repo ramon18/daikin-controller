@@ -7,3 +7,4 @@ export * from './WeekPowerExtendedResponse';
 export * from './WeekPowerResponse';
 export * from './YearPowerExtendedResponse';
 export * from './YearPowerResponse';
+export * from './DayPowerExtendedResponse';

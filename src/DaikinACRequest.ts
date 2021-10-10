@@ -13,6 +13,7 @@ import {
 } from './models';
 import { SetCommandResponse, SetSpecialModeRequest } from './models';
 import { SpecialModeKind } from './DaikinACTypes';
+import { DayPowerExtendedResponse } from './models/responses/DayPowerExtendedResponse';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const RestClient = require('node-rest-client').Client;
@@ -267,6 +268,16 @@ export class DaikinACRequest {
         this.doGet(`http://${this.ip}/aircon/get_week_power_ex`, {}, (data, _response) => {
             const dict = DaikinDataParser.processResponse(data, callback);
             if (dict !== null) WeekPowerExtendedResponse.parseResponse(dict, callback);
+        });
+    }
+
+    public getACDayPowerExtended(days: number, callback: DaikinResponseCb<DayPowerExtendedResponse>) {
+        if (days < 0 || days > 7)
+            throw Error('Invalid day range');
+        if (this.logger) this.logger(`Call GET http://${this.ip}/aircon/get_day_power_ex?days=${days}`);
+        this.doGet(`http://${this.ip}/aircon/get_day_power_ex?days=${days}`, {}, (data, _response) => {
+            const dict = DaikinDataParser.processResponse(data, callback);
+            if (dict !== null) DayPowerExtendedResponse.parseResponse(dict, callback);
         });
     }
 }

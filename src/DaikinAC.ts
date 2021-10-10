@@ -12,6 +12,7 @@ import {
     YearPowerResponse,
 } from './models';
 import { DaikinACOptions, DaikinACRequest, Logger } from './DaikinACRequest';
+import { DayPowerExtendedResponse } from './models/responses/DayPowerExtendedResponse';
 
 export * from './DaikinACTypes';
 
@@ -196,6 +197,13 @@ export class DaikinAC {
 
     public getACYearPower(callback: defaultCallback<YearPowerResponse>) {
         this._daikinRequest.getACYearPower((err, _ret, daikinResponse) => {
+            if (this._logger) this._logger(JSON.stringify(daikinResponse));
+            if (callback) callback(err, daikinResponse);
+        });
+    }
+
+    public getACDayPowerExtended(days: number, callback: defaultCallback<DayPowerExtendedResponse>) {
+        this._daikinRequest.getACDayPowerExtended(days, (err, _ret, daikinResponse) => {
             if (this._logger) this._logger(JSON.stringify(daikinResponse));
             if (callback) callback(err, daikinResponse);
         });

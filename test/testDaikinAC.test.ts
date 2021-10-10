@@ -205,6 +205,11 @@ describe('Test DaikinAC', () => {
                 200,
                 'ret=OK,curr_year_heat=0/0/0/0/0/0/0/0/0/0/0/0,prev_year_heat=0/0/0/0/0/0/0/0/0/0/0/0,curr_year_cool=0/0/0/0/0/0/0/0/0/0/0/0,prev_year_cool=0/0/0/0/0/0/0/0/0/0/0/0',
             )
+            .get('/aircon/get_day_power_ex?days=7')
+            .reply(
+                200,
+                'ret=OK,curr_day_heat=0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0,prev_1day_heat=0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0,prev_2day_heat=0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0,prev_3day_heat=0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0,prev_4day_heat=0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0,prev_5day_heat=0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0,prev_6day_heat=0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0,curr_day_cool=1/0/0/0/0/0/0/0/0/0/0/0/0/0/0/1/0/0/0/0/0/0/0/0,prev_1day_cool=1/1/0/0/0/0/0/0/0/0/3/2/3/2/2/1/2/2/2/2/2/0/1/3,prev_2day_cool=2/0/0/0/0/0/0/0/3/2/2/2/0/3/1/2/3/3/2/1/1/2/0/0,prev_3day_cool=1/0/0/0/0/0/0/0/0/0/1/0/1/0/0/0/0/0/0/0/0/2/3/2,prev_4day_cool=0/0/0/0/0/0/0/0/0/0/0/1/0/5/4/2/3/3/2/2/2/2/0/0,prev_5day_cool=0/0/0/1/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/4/4/0,prev_6day_cool=0/0/0/0/0/0/0/1/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0',
+            )
             .post('/common/reboot')
             .reply(200, 'ret=OK')
             .get('/common/basic_info')
@@ -269,26 +274,32 @@ describe('Test DaikinAC', () => {
                                         expect(Object.keys(response!).length).toEqual(4);
                                         expect(Array.isArray(response!.heatCurrentYear)).toBeTruthy();
 
-                                        daikin.rebootAdapter(function (err, response) {
+                                        daikin.getACDayPowerExtended(7, function (err, response) {
                                             expect(err).toBeNull();
-                                            expect(Object.keys(response!).length).toEqual(1);
-                                            expect(daikin.currentCommonBasicInfo!.dst).toBeFalsy();
-
-                                            daikin.enableAdapterLED(function (err, response) {
+                                            expect(Object.keys(response!).length).toEqual(14);
+                                            expect(Array.isArray(response!.coolPrevious1Day)).toBeTruthy();
+                                        
+                                            daikin.rebootAdapter(function (err, response) {
                                                 expect(err).toBeNull();
                                                 expect(Object.keys(response!).length).toEqual(1);
-                                                expect(daikin.currentCommonBasicInfo!.dst).toBeTruthy();
-                                                expect(daikin.currentCommonBasicInfo!.led).toBeTruthy();
-
-                                                daikin.disableAdapterLED(function (err, response) {
+                                                expect(daikin.currentCommonBasicInfo!.dst).toBeFalsy();
+    
+                                                daikin.enableAdapterLED(function (err, response) {
                                                     expect(err).toBeNull();
                                                     expect(Object.keys(response!).length).toEqual(1);
-                                                    expect(daikin.currentCommonBasicInfo!.led).toBeFalsy();
-
-                                                    setTimeout(function () {
-                                                        expect(req.isDone()).toBeTruthy();
-                                                        done();
-                                                    }, 500);
+                                                    expect(daikin.currentCommonBasicInfo!.dst).toBeTruthy();
+                                                    expect(daikin.currentCommonBasicInfo!.led).toBeTruthy();
+    
+                                                    daikin.disableAdapterLED(function (err, response) {
+                                                        expect(err).toBeNull();
+                                                        expect(Object.keys(response!).length).toEqual(1);
+                                                        expect(daikin.currentCommonBasicInfo!.led).toBeFalsy();
+    
+                                                        setTimeout(function () {
+                                                            expect(req.isDone()).toBeTruthy();
+                                                            done();
+                                                        }, 500);
+                                                    });
                                                 });
                                             });
                                         });
